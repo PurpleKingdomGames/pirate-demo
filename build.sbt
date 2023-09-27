@@ -100,9 +100,9 @@ lazy val pirate =
     )
 
 addCommandAlias("buildGame", ";compile;fastLinkJS;indigoBuild")
-addCommandAlias("buildGameFull", ";compile;fullLinkJS;indigoBuildFull")
+addCommandAlias("buildGameFull", ";compile;fullOptJS;indigoBuildFull")
 addCommandAlias("runGame", ";compile;fastLinkJS;indigoRun")
-addCommandAlias("runGameFull", ";compile;fullLinkJS;indigoRunFull")
+addCommandAlias("runGameFull", ";compile;fullOptJS;indigoRunFull")
 
 addCommandAlias(
   "publishGame",
