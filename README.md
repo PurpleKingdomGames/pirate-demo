@@ -1,5 +1,7 @@
 # The Cursed Pirate!
 
+Play now! [https://purplekingdomgames.github.io/pirate-demo/](https://purplekingdomgames.github.io/pirate-demo/)
+
 Created for a talk in 2020, 'The Cursed Pirate' has been a constant during Indigo's development, and has kept pace will all of the new versions and features.
 
 ![A screenshot of the cursed pirat demo](the-cursed-pirate.png)
