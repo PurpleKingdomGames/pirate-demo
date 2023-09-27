@@ -68,7 +68,8 @@ lazy val pirate =
       makeSite / includeFilter := "*",
       makeSite / excludeFilter := ".DS_Store",
       git.remoteRepo           := "git@github.com:PurpleKingdomGames/pirate-demo.git",
-      ghpagesNoJekyll          := true
+      ghpagesNoJekyll          := true,
+      ghpagesBranch            := "gh-pages"
     )
     .settings(
       code := {
