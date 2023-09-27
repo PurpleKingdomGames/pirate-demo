@@ -53,6 +53,7 @@ object CursedPirateDemo extends IndigoGame[BootInformation, StartupData, Model, 
       val config =
         Config.config
           .withMagnification(2)
+          .noResize
 
       BootResult(
         config,

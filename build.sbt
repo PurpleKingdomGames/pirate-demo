@@ -67,7 +67,7 @@ lazy val pirate =
       siteSourceDirectory      := target.value / "indigoBuildFull",
       makeSite / includeFilter := "*",
       makeSite / excludeFilter := ".DS_Store",
-      git.remoteRepo           := "git@github.com:davesmith00000/pirate-demo.git",
+      git.remoteRepo           := "git@github.com:PurpleKingdomGames/pirate-demo.git",
       ghpagesNoJekyll          := true
     )
     .settings(
