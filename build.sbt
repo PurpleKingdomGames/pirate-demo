@@ -67,7 +67,7 @@ lazy val pirate =
       siteSourceDirectory      := target.value / "indigoBuildFull",
       makeSite / includeFilter := "*",
       makeSite / excludeFilter := ".DS_Store",
-      git.remoteRepo           := "git@github.com:davesmith00000/pong.git",
+      git.remoteRepo           := "git@github.com:davesmith00000/pirate-demo.git",
       ghpagesNoJekyll          := true
     )
     .settings(
@@ -104,15 +104,14 @@ addCommandAlias("buildGameFull", ";compile;fullLinkJS;indigoBuildFull")
 addCommandAlias("runGame", ";compile;fastLinkJS;indigoRun")
 addCommandAlias("runGameFull", ";compile;fullLinkJS;indigoRunFull")
 
-// TODO: Set up GHPages + Clean Branch.
-// addCommandAlias(
-//   "publishGame",
-//   List(
-//     "buildGameFull",
-//     "makeSite",
-//     "ghpagesPushSite"
-//   ).mkString(";", ";", "")
-// )
+addCommandAlias(
+  "publishGame",
+  List(
+    "buildGameFull",
+    "makeSite",
+    "ghpagesPushSite"
+  ).mkString(";", ";", "")
+)
 
 lazy val code =
   taskKey[Unit]("Launch VSCode in the current directory")
