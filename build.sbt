@@ -43,20 +43,19 @@ lazy val pirate =
     .settings(
       indigoOptions := pirateOptions,
       libraryDependencies ++= Seq(
-        "io.indigoengine" %%% "indigo-json-circe" % "0.15.0",
-        "io.indigoengine" %%% "indigo"            % "0.15.0",
-        "io.indigoengine" %%% "indigo-extras"     % "0.15.0"
+        "io.indigoengine" %%% "indigo-json-circe" % "0.15.1",
+        "io.indigoengine" %%% "indigo"            % "0.15.1",
+        "io.indigoengine" %%% "indigo-extras"     % "0.15.1"
       ),
       Compile / sourceGenerators += Def.task {
         val cachedFun = FileFunction.cached(
           streams.value.cacheDirectory / "pirate-gen"
         ) { _ =>
-          IndigoGenerators
-            .sbt((Compile / sourceManaged).value, "pirate.generated")
+          IndigoGenerators("pirate.generated")
             .listAssets("Assets", pirateOptions.assets)
             .generateConfig("Config", pirateOptions)
             .embedAseprite("CaptainAnim", baseDirectory.value / "assets" / "captain" / "Captain Clown Nose Data.json")
-            .toSourceFiles
+            .toSourceFiles((Compile / sourceManaged).value)
             .toSet
         }
         cachedFun(IO.listFiles(baseDirectory.value / "assets").toSet).toSeq
