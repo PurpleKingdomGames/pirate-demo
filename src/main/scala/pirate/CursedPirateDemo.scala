@@ -2,7 +2,6 @@ package pirate
 
 import indigo.*
 import indigo.scenes.*
-import indigoextras.subsystems.FPSCounter
 import pirate.scenes.loading.LoadingScene
 import pirate.scenes.level.LevelScene
 import pirate.core.{Model, ViewModel}
@@ -45,7 +44,7 @@ object CursedPirateDemo extends IndigoGame[BootInformation, StartupData, Model, 
       ).withAssets(Assets.initialAssets(assetPath))
         .withFonts(Assets.Fonts.fontInfo)
         .withSubSystems(
-          FPSCounter(Point(10, 10), LayerKeys.fps)
+          // indigoextras.subsystems.FPSCounter(Point(10, 10), LayerKeys.fps)
         )
     }
 
