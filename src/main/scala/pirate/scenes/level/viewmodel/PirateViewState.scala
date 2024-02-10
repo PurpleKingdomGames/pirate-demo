@@ -24,7 +24,7 @@ We could store these values in the model, but the model doesn't care
 and this way is a bit cleaner.
  */
 final case class PirateViewState(
-    facingRight: Boolean,
+    facingRight: Boolean, // Used to make sure that when idle, we face the last direction.
     soundLastPlayed: Seconds
 ):
 

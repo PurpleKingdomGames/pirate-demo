@@ -17,7 +17,7 @@ enum LevelModel:
   def notReady: Boolean =
     this match
       case NotReady                       => true
-      case Ready(pirate, platform, world) => false
+      case Ready(_, _, _) => false
 
   def update(gameTime: GameTime, inputState: InputState): Outcome[LevelModel] =
     this match

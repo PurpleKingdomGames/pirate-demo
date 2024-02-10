@@ -9,9 +9,14 @@ some data during the loading screen, parse it, and use it to build the
 `worldToScreenSpace` function, which relies on knowing the size of the tiles
 which is stored in the Tiled data.
  */
-enum LevelViewModel(val notReady: Boolean):
-  case NotReady                                                                      extends LevelViewModel(true)
-  case Ready(worldToScreenSpace: Vertex => Vertex, pirateViewState: PirateViewState) extends LevelViewModel(false)
+enum LevelViewModel:
+  case NotReady
+  case Ready(worldToScreenSpace: Vertex => Vertex, pirateViewState: PirateViewState)
+
+  def notReady: Boolean =
+    this match
+      case NotReady                                   => true
+      case Ready(worldToScreenSpace, pirateViewState) => false
 
 object LevelViewModel:
 
@@ -21,12 +26,7 @@ object LevelViewModel:
         case NotReady =>
           Outcome(lvm)
 
-        case Ready(worldToScreenSpace, pirateViewState) =>
+        case r @ Ready(worldToScreenSpace, pirateViewState) =>
           pirateViewState
             .update(gameTime, pirate)
-            .map(ps =>
-              Ready(
-                worldToScreenSpace,
-                ps
-              )
-            )
+            .map(ps => r.copy(pirateViewState = ps))
