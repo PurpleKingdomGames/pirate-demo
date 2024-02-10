@@ -44,7 +44,6 @@ object LevelView:
     SceneUpdateFragment(
       world.present {
         case Collider.Circle(_, bounds, _, _, _, _, _, _, _, _) =>
-          // Won't get here, no circles.
           Shape.Circle(
             toScreenSpace(bounds.position).toPoint,
             bounds.radius.toInt,
