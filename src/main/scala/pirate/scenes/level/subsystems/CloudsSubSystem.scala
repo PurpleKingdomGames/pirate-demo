@@ -3,6 +3,7 @@ package pirate.scenes.level.subsystems
 import indigo.*
 import indigoextras.subsystems.*
 import pirate.core.Assets
+import pirate.core.LayerKeys
 
 /*
 The `CloudsSubSystem` does two things:
@@ -68,7 +69,7 @@ object CloudsSubSystem:
         SceneUpdateFragment.empty
           .addLayer(
             Layer(
-              BindingKey("big clouds"),
+              LayerKeys.bigClouds,
               Assets.Clouds.bigCloudsGraphic
                 .moveTo(
                   model.bigCloudPosition.toInt - Assets.Clouds.bigCloudsWidth,

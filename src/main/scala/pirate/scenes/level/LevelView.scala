@@ -11,6 +11,7 @@ import pirate.scenes.level.model.LevelModel
 import pirate.scenes.level.viewmodel.LevelViewModel
 import pirate.scenes.level.viewmodel.PirateViewState
 import pirate.generated.Assets.*
+import pirate.core.LayerKeys
 
 object LevelView:
 
@@ -70,13 +71,13 @@ object LevelView:
           SceneUpdateFragment.empty
             .addLayer(
               Layer(
-                BindingKey("background"),
+                LayerKeys.background,
                 Batch(Graphic(Rectangle(0, 0, 640, 360), 50, assets.static.bgMaterial)) ++
                   drawWater(levelAssets.waterReflections)
               )
             )
             .addLayer(
-              Layer(BindingKey("game"), drawForeground(levelAssets))
+              Layer(LayerKeys.game, drawForeground(levelAssets))
             )
             .withAudio(
               assets.sounds.bgmusicSceneAudio
@@ -119,7 +120,7 @@ object LevelView:
       SceneUpdateFragment.empty
         .addLayer(
           Layer(
-            BindingKey("game"),
+            LayerKeys.game,
             respawnEffect(
               gameTime,
               pirate.lastRespawn,
