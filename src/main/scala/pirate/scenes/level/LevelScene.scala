@@ -121,7 +121,7 @@ final case class LevelScene(screenWidth: Int) extends Scene[StartupData, Model, 
     Outcome(
       (model, viewModel) match
         case (m @ LevelModel.Ready(_, _, _), vm @ LevelViewModel.Ready(_, _)) =>
-          LevelView.draw(context.gameTime, m, vm, context.startUpData.captain, context.startUpData.levelDataStore)
+          LevelView.draw(context.gameTime, m, vm, context.startUpData.captainClips, context.startUpData.levelDataStore)
 
         case _ =>
           SceneUpdateFragment.empty
