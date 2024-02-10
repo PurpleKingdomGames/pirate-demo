@@ -3,6 +3,7 @@ package pirate.scenes.level.subsystems
 import indigo.*
 import indigoextras.subsystems.*
 import pirate.core.Assets
+import pirate.core.LayerKeys
 
 /*
 An instance of a standard Automata SubSystem, you can think of this
@@ -55,5 +56,5 @@ object CloudsAutomata:
     Automata(
       poolKey,
       automaton,
-      BindingKey("small clouds")
+      LayerKeys.smallClouds
     ).withMaxPoolSize(15)
