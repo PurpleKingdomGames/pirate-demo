@@ -101,21 +101,20 @@ final case class LoadingScene(assetPath: String, screenDimensions: Rectangle)
         case LoadingState.Error =>
           "Uh oh, loading failed..."
 
+    val loadingText =
+      Text(
+        message,
+        x,
+        y + 10,
+        1,
+        Assets.Fonts.fontKey,
+        Assets.Fonts.fontMaterial
+      ).alignCenter
+
     Outcome(
       SceneUpdateFragment(
-        Text(
-          message,
-          x,
-          y + 10,
-          1,
-          Assets.Fonts.fontKey,
-          Assets.Fonts.fontMaterial
-        ).alignCenter,
-        context.startUpData.captain
-          .modifyMaterial(_.withOverlay(Fill.Color(RGBA.White)))
-          .moveTo(x, y)
-          .changeCycle(CycleLabel("Run"))
-          .play()
+        loadingText,
+        context.startUpData.captainLoading.moveTo(x, y)
       )
     )
 

@@ -5,6 +5,7 @@ import indigo.physics.*
 
 import pirate.core.Assets
 import pirate.core.LevelDataStore
+import pirate.core.PirateClips
 import pirate.scenes.level.model.PirateState
 import pirate.scenes.level.model.Pirate
 import pirate.scenes.level.model.LevelModel
@@ -19,7 +20,7 @@ object LevelView:
       gameTime: GameTime,
       model: LevelModel.Ready,
       viewModel: LevelViewModel.Ready,
-      captain: Sprite[Material.ImageEffects],
+      captainClips: PirateClips,
       levelDataStore: Option[LevelDataStore]
   ): SceneUpdateFragment =
     Level.draw(levelDataStore) |+| {
@@ -30,7 +31,7 @@ object LevelView:
             model.pirate,
             collider,
             viewModel.pirateViewState,
-            captain,
+            captainClips,
             viewModel.worldToScreenSpace
           )
 
@@ -114,7 +115,7 @@ object LevelView:
         pirate: Pirate,
         collider: Collider.Box[String],
         pirateViewState: PirateViewState,
-        captain: Sprite[Material.ImageEffects],
+        captainClips: PirateClips,
         toScreenSpace: Vertex => Vertex
     ): SceneUpdateFragment =
       SceneUpdateFragment.empty
@@ -124,7 +125,7 @@ object LevelView:
             respawnEffect(
               gameTime,
               pirate.lastRespawn,
-              updatedCaptain(pirate, collider, pirateViewState, captain, toScreenSpace)
+              updatedCaptain(pirate, collider, pirateViewState, captainClips, toScreenSpace)
             )
           )
         )
@@ -133,7 +134,7 @@ object LevelView:
       lastRespawn => Signal(_ < lastRespawn + Seconds(1.2)) |*| Signal.Pulse(Seconds(0.1))
 
     val captainWithAlpha
-        : Sprite[Material.ImageEffects] => SignalFunction[(Boolean, Boolean), Sprite[Material.ImageEffects]] =
+        : Clip[Material.ImageEffects] => SignalFunction[(Boolean, Boolean), Clip[Material.ImageEffects]] =
       captain =>
         SignalFunction {
           case (false, _) =>
@@ -151,17 +152,17 @@ object LevelView:
     def respawnEffect(
         gameTime: GameTime,
         lastRespawn: Seconds,
-        captain: Sprite[Material.ImageEffects]
-    ): Sprite[Material.ImageEffects] =
+        captain: Clip[Material.ImageEffects]
+    ): Clip[Material.ImageEffects] =
       (respawnFlashSignal(lastRespawn) |> captainWithAlpha(captain)).at(gameTime.running)
 
     def updatedCaptain(
         pirate: Pirate,
         collider: Collider.Box[String],
         pirateViewState: PirateViewState,
-        captain: Sprite[Material.ImageEffects],
+        captainClips: PirateClips,
         toScreenSpace: Vertex => Vertex
-    ): Sprite[Material.ImageEffects] =
+    ): Clip[Material.ImageEffects] =
       val onScreenBounds =
         BoundingBox(
           toScreenSpace(collider.position),
@@ -173,57 +174,33 @@ object LevelView:
 
       pirate.state match
         case PirateState.Idle if pirateViewState.facingRight =>
-          captain
+          captainClips.idleRight
             .moveTo(position)
-            .changeCycle(CycleLabel("Idle"))
-            .play()
 
         case PirateState.Idle =>
-          captain
+          captainClips.idleLeft
             .moveTo(position)
-            .flipHorizontal(true)
-            .moveBy(-20, 0)
-            .changeCycle(CycleLabel("Idle"))
-            .play()
 
         case PirateState.MoveLeft =>
-          captain
+          captainClips.moveLeft
             .moveTo(position)
-            .flipHorizontal(true)
-            .moveBy(-20, 0)
-            .changeCycle(CycleLabel("Run"))
-            .play()
 
         case PirateState.MoveRight =>
-          captain
+          captainClips.moveRight
             .moveTo(position)
-            .changeCycle(CycleLabel("Run"))
-            .play()
 
         case PirateState.FallingRight =>
-          captain
+          captainClips.fallRight
             .moveTo(position)
-            .changeCycle(CycleLabel("Fall"))
-            .play()
 
         case PirateState.FallingLeft =>
-          captain
+          captainClips.fallLeft
             .moveTo(position)
-            .flipHorizontal(true)
-            .moveBy(-20, 0)
-            .changeCycle(CycleLabel("Fall"))
-            .play()
 
         case PirateState.JumpingRight =>
-          captain
+          captainClips.jumpRight
             .moveTo(position)
-            .changeCycle(CycleLabel("Jump"))
-            .play()
 
         case PirateState.JumpingLeft =>
-          captain
+          captainClips.jumpLeft
             .moveTo(position)
-            .flipHorizontal(true)
-            .moveBy(-20, 0)
-            .changeCycle(CycleLabel("Jump"))
-            .play()

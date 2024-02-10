@@ -32,30 +32,70 @@ object InitialLoad:
   ): Outcome[Startup[StartupData]] =
     Outcome(
       CaptainAnim.aseprite
-        .toSpriteAndAnimations(dice, assets.captain.CaptainClownNose)
-        .map(s => s.copy(sprite = s.sprite.withDepth(Depth(2))))
-        .map { captain =>
+        .toClips(assets.captain.CaptainClownNose)
+        .map { captainClips =>
           makeStartupData(
-            captain,
+            captainClips,
             levelDataStore(screenDimensions, assetCollection, dice)
           )
-        } match {
+        } match
         case None =>
           Startup.Failure("Failed to start The Cursed Pirate")
 
         case Some(success) =>
           success
-      }
     )
+
+  def makeStartupData(
+      captainClips: Map[CycleLabel, Clip[Material.Bitmap]],
+      levelDataStore: Option[LevelDataStore]
+  ): Startup[StartupData] =
+    val captainClipsPrepared =
+      captainClips.map { case (label, clip) =>
+        label ->
+          clip
+            .withDepth(Depth(2))
+            .modifyMaterial(m => Material.ImageEffects(m.diffuse))
+            .withRef(37, 64)
+            .moveTo(300, 271)
+      }
+
+    val pirateClips =
+      for {
+        idle <- captainClipsPrepared.get(CycleLabel("Idle"))
+        run  <- captainClipsPrepared.get(CycleLabel("Run"))
+        fall <- captainClipsPrepared.get(CycleLabel("Fall"))
+        jump <- captainClipsPrepared.get(CycleLabel("Jump"))
+      } yield PirateClips(
+        idleLeft = idle.flipHorizontal(true).withRef(idle.ref.moveBy(20, 0)),
+        idleRight = idle,
+        moveLeft = run.flipHorizontal(true).withRef(run.ref.moveBy(20, 0)),
+        moveRight = run,
+        fallLeft = fall.flipHorizontal(true).withRef(fall.ref.moveBy(20, 0)),
+        fallRight = fall,
+        jumpLeft = jump.flipHorizontal(true).withRef(jump.ref.moveBy(20, 0)),
+        jumpRight = jump
+      )
+
+    pirateClips match
+      case None =>
+        Startup.Failure("Pirate captain animations failed to load")
+
+      case Some(pcs) =>
+        Startup
+          .Success(
+            StartupData(
+              pcs.moveRight.modifyMaterial(_.withOverlay(Fill.Color(RGBA.White))),
+              pcs,
+              levelDataStore
+            )
+          )
 
   def levelDataStore(
       screenDimensions: Rectangle,
       assetCollection: AssetCollection,
       dice: Dice
   ): Option[LevelDataStore] =
-    val singleClipLoader: (AssetName, AssetName, String) => Either[String, Clip[Material.Bitmap]] =
-      loadSingleClip(assetCollection, dice)
-
     // If these assets haven't been loaded yet, we're not going to try and process anything.
     if assetCollection.findTextDataByName(assets.helm.ShipHelmData).isDefined &&
       assetCollection.findTextDataByName(assets.trees.PalmTreeData).isDefined &&
@@ -78,138 +118,65 @@ object InitialLoad:
         } yield (Point(tileMap.tilewidth, tileMap.tileheight), grid, terrainGroup.withDepth(Depth(4)))
 
       for {
-        helm <- singleClipLoader(
-          assets.helm.ShipHelmData,
-          assets.helm.ShipHelm,
-          "Idle"
-        ).toOption
-        palm <- singleClipLoader(
+
+        helm <- loadSingleClip(assetCollection, assets.helm.ShipHelmData, assets.helm.ShipHelm, "Idle")
+
+        palm <- loadSingleClip(
+          assetCollection,
           assets.trees.PalmTreeData,
           assets.trees.PalmTree,
           "P Front"
-        ).toOption
-        backPalm <- singleClipLoader(
+        )
+
+        backPalm <- loadSingleClip(
+          assetCollection,
           assets.trees.PalmTreeData,
           assets.trees.PalmTree,
           "P Back"
-        ).toOption
-        reflections <- singleClipLoader(
+        )
+
+        reflections <- loadSingleClip(
+          assetCollection,
           assets.water.WaterReflectData,
           assets.water.WaterReflect,
           "Big"
-        ).toOption
-        flag <- singleClipLoader(
-          assets.flag.FlagData,
-          assets.flag.Flag,
-          "Flapping"
-        ).toOption
+        )
+
+        flag <- loadSingleClip(assetCollection, assets.flag.FlagData, assets.flag.Flag, "Flapping")
+
         terrain <- terrainData
-      } yield makeAdditionalAssets(
-        screenDimensions,
-        helm,
-        palm,
-        backPalm,
-        reflections,
-        flag,
+
+      } yield LevelDataStore(
+        reflections
+          .withDepth(Depth(20))
+          .withRef(85, 0)
+          .moveTo(screenDimensions.horizontalCenter, screenDimensions.verticalCenter + 5),
+        flag.withDepth(Depth(9)).withRef(22, 105).moveTo(200, 288),
+        helm.withRef(31, 49).moveTo(605, 160),
+        palm.withDepth(Depth(1)),
+        backPalm.withDepth(Depth(10)),
         terrain._1,
         terrain._2,
         terrain._3
       )
     else None
 
-  // Helper function that loads Aseprite animations.
-  def loadAnimation(
+  private def loadSingleClip(
       assetCollection: AssetCollection,
-      dice: Dice
-  )(jsonRef: AssetName, name: AssetName, depth: Depth): Either[String, SpriteAndAnimations] =
-    val res = for {
-      json                <- assetCollection.findTextDataByName(jsonRef)
-      aseprite            <- Json.asepriteFromJson(json)
-      spriteAndAnimations <- aseprite.toSpriteAndAnimations(dice, name)
-    } yield spriteAndAnimations.copy(sprite = spriteAndAnimations.sprite.withDepth(depth))
-
-    res match
-      case Some(spriteAndAnimations) =>
-        Right(spriteAndAnimations)
-
-      case None =>
-        Left("Failed to load " + name)
-
-  // Helper function that loads Aseprite clips.
-  def loadClip(
-      assetCollection: AssetCollection,
-      dice: Dice
-  )(jsonRef: AssetName, name: AssetName): Either[String, Map[CycleLabel, Clip[Material.Bitmap]]] =
-    val res = for {
+      jsonRef: AssetName,
+      name: AssetName,
+      cycleName: String
+  ): Option[Clip[Material.Bitmap]] =
+    for {
       json     <- assetCollection.findTextDataByName(jsonRef)
       aseprite <- Json.asepriteFromJson(json)
       clips    <- aseprite.toClips(name)
-    } yield clips
-
-    res match
-      case Some(clips) =>
-        Right(clips)
-
-      case None =>
-        Left(s"Failed to load $name")
-
-  // Helper function that loads a single Aseprite clip.
-  def loadSingleClip(
-      assetCollection: AssetCollection,
-      dice: Dice
-  )(jsonRef: AssetName, name: AssetName, cycleName: String): Either[String, Clip[Material.Bitmap]] =
-    loadClip(assetCollection, dice)(jsonRef, name).flatMap {
-      _.get(CycleLabel(cycleName)) match
-        case Some(clip) =>
-          Right(clip)
-
-        case None =>
-          Left(s"No cycle named: $cycleName for asset: $name")
-    }
-
-  def makeAdditionalAssets(
-      screenDimensions: Rectangle,
-      helm: Clip[Material.Bitmap],
-      palm: Clip[Material.Bitmap],
-      backPalm: Clip[Material.Bitmap],
-      waterReflections: Clip[Material.Bitmap],
-      flag: Clip[Material.Bitmap],
-      tileSize: Point,
-      terrainMap: TiledGridMap[TileType],
-      terrain: Group
-  ): LevelDataStore =
-    LevelDataStore(
-      waterReflections
-        .withDepth(Depth(20))
-        .withRef(85, 0)
-        .moveTo(screenDimensions.horizontalCenter, screenDimensions.verticalCenter + 5),
-      flag.withDepth(Depth(9)).withRef(22, 105).moveTo(200, 288),
-      helm.withRef(31, 49).moveTo(605, 160),
-      palm.withDepth(Depth(1)),
-      backPalm.withDepth(Depth(10)),
-      tileSize,
-      terrainMap,
-      terrain
-    )
-
-  def makeStartupData(
-      captain: SpriteAndAnimations,
-      levelDataStore: Option[LevelDataStore]
-  ): Startup.Success[StartupData] =
-    Startup
-      .Success(
-        StartupData(
-          captain.sprite
-            .modifyMaterial(m => Material.ImageEffects(m.diffuse))
-            .withRef(37, 64)
-            .moveTo(300, 271),
-          levelDataStore
-        )
-      )
-      .addAnimations(captain.animations)
+      clip     <- clips.get(CycleLabel(cycleName))
+    } yield clip
 
 final case class StartupData(
-    captain: Sprite[Material.ImageEffects],
+    captainLoading: Clip[Material.ImageEffects],
+    captainClips: PirateClips,
     levelDataStore: Option[LevelDataStore]
 )
 final case class LevelDataStore(
@@ -225,3 +192,14 @@ final case class LevelDataStore(
 
 enum TileType:
   case Empty, Solid
+
+final case class PirateClips(
+    idleLeft: Clip[Material.ImageEffects],
+    idleRight: Clip[Material.ImageEffects],
+    moveLeft: Clip[Material.ImageEffects],
+    moveRight: Clip[Material.ImageEffects],
+    fallLeft: Clip[Material.ImageEffects],
+    fallRight: Clip[Material.ImageEffects],
+    jumpLeft: Clip[Material.ImageEffects],
+    jumpRight: Clip[Material.ImageEffects]
+)
