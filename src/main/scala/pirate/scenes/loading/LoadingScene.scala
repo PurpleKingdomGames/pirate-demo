@@ -22,10 +22,7 @@ for the player.
  */
 final case class LoadingScene(assetPath: String, screenDimensions: Rectangle)
     extends Scene[StartupData, Model, ViewModel]:
-  // We only care about the `LoadingState` which is actually a
-  // sub-object of an otherwise pointless (but readable) `LoadingModel`
-  // class. However! Here we use lenses to ignore the intermediary entirely
-  // and only deal with the bit we care about.
+
   type SceneModel     = LoadingState
   type SceneViewModel = Unit
 
@@ -34,8 +31,8 @@ final case class LoadingScene(assetPath: String, screenDimensions: Rectangle)
 
   val modelLens: Lens[Model, LoadingState] =
     Lens(
-      m => m.loadingScene.loadingState,
-      (m, sm) => m.copy(loadingScene = LoadingModel(sm))
+      m => m.loadingScene,
+      (m, sm) => m.copy(loadingScene = sm)
     )
 
   val viewModelLens: Lens[ViewModel, Unit] =
@@ -87,10 +84,44 @@ final case class LoadingScene(assetPath: String, screenDimensions: Rectangle)
       loadingState: LoadingState,
       viewModel: Unit
   ): Outcome[SceneUpdateFragment] =
+    val x = screenDimensions.horizontalCenter
+    val y = screenDimensions.verticalCenter
+
+    val message: String =
+      loadingState match
+        case LoadingState.NotStarted =>
+          "Loading..."
+
+        case LoadingState.InProgress(percent) =>
+          s"Loading...${percent.toString()}%"
+
+        case LoadingState.Complete =>
+          "Loading...100%"
+
+        case LoadingState.Error =>
+          "Uh oh, loading failed..."
+
     Outcome(
-      LoadingView.draw(
-        screenDimensions,
-        context.startUpData.captain,
-        loadingState
+      SceneUpdateFragment(
+        Text(
+          message,
+          x,
+          y + 10,
+          1,
+          Assets.Fonts.fontKey,
+          Assets.Fonts.fontMaterial
+        ).alignCenter,
+        context.startUpData.captain
+          .modifyMaterial(_.withOverlay(Fill.Color(RGBA.White)))
+          .moveTo(x, y)
+          .changeCycle(CycleLabel("Run"))
+          .play()
       )
     )
+
+// An ADT representing the states we can be in during loading.
+enum LoadingState:
+  case NotStarted               extends LoadingState
+  case InProgress(percent: Int) extends LoadingState
+  case Complete                 extends LoadingState
+  case Error                    extends LoadingState

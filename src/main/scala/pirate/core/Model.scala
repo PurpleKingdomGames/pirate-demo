@@ -1,22 +1,18 @@
 package pirate.core
 
-import pirate.scenes.loading.LoadingModel
 import pirate.scenes.level.model.LevelModel
+import pirate.scenes.loading.LoadingState
 
 // A simple master model class to hold the sub-models for
-// each scene. Slightly over-egged, LoadingModel only holds
-// LoadingState and so is a bit superfluous, but it's here
-// for clarity.
+// each scene.
 final case class Model(
-    loadingScene: LoadingModel,
+    loadingScene: LoadingState,
     gameScene: LevelModel
 )
 object Model:
 
-  // It's a good idea to have as far requirements as possible on the
-  // initial versions of the model and view model.
   def initial: Model =
     Model(
-      LoadingModel.initial,
+      LoadingState.NotStarted,
       LevelModel.NotReady
     )
