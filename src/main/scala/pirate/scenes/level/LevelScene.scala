@@ -49,12 +49,10 @@ final case class LevelScene(screenWidth: Int) extends Scene[StartupData, Model, 
         case LevelModel.NotReady =>
           Outcome(model)
 
-        case LevelModel.Ready(pirate, platform, world) =>
+        case r @ LevelModel.Ready(_, _, world) =>
           Outcome(
-            LevelModel.Ready(
-              pirate,
-              platform,
-              world.modifyByTag("pirate")(_.moveTo(at).withVelocity(Vector2.zero))
+            r.copy(
+              world = world.modifyByTag("pirate")(_.moveTo(at).withVelocity(Vector2.zero))
             )
           )
 
@@ -67,7 +65,7 @@ final case class LevelScene(screenWidth: Int) extends Scene[StartupData, Model, 
           Outcome(
             LevelModel.Ready(
               pirate,
-              platform,
+              platform.rowCount,
               World
                 .empty[String](SimulationSettings(BoundingBox(0, 0, 1280, 720)))
                 .withResistance(Resistance(0.01))

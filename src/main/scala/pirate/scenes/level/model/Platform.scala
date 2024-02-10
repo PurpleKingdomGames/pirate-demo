@@ -41,8 +41,7 @@ object Platform:
     val layer = terrainMap.toListPerLayer.head.toBatch
 
     def toNavMesh: Batch[TiledGridCell[TileType]] => Batch[BoundingBox] =
-      filterPlatformTiles andThen
-        convertCellsToBoundingBoxes
+      filterPlatformTiles andThen convertCellsToBoundingBoxes
 
     Platform(
       toNavMesh(layer).map(b => Collider.Box("platform", b).makeStatic.withFriction(Friction(0.5))),

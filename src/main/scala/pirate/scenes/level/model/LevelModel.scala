@@ -12,7 +12,7 @@ messy.
  */
 enum LevelModel:
   case NotReady
-  case Ready(pirate: Pirate, platform: Platform, world: World[String])
+  case Ready(pirate: Pirate, mapHeight: Int, world: World[String])
 
   def notReady: Boolean =
     this match
@@ -24,7 +24,7 @@ enum LevelModel:
       case NotReady =>
         Outcome(this)
 
-      case Ready(pirate, platform, world) =>
+      case Ready(pirate, mapHeight, world) =>
         val inputForce =
           inputState.mapInputs(Pirate.inputMappings(pirate.state.inMidAir), Vector2.zero)
 
@@ -38,7 +38,7 @@ enum LevelModel:
           .flatMap { w =>
             w.findByTag("pirate").headOption match
               case None =>
-                Outcome(Ready(pirate, platform, w))
+                Outcome(Ready(pirate, mapHeight, w))
 
               case Some(p) =>
                 val yDiff =
@@ -48,7 +48,7 @@ enum LevelModel:
 
                 // Respawn if the pirate is below the bottom of the map.
                 val nextPirate =
-                  if p.position.y > platform.rowCount.toDouble + 1 then
+                  if p.position.y > mapHeight.toDouble + 1 then
                     Outcome(Pirate(nextState, gameTime.running))
                       .addGlobalEvents(
                         assets.sounds.respawnPlay,
@@ -63,5 +63,5 @@ enum LevelModel:
                     Outcome(Pirate(nextState, pirate.lastRespawn))
                       .addGlobalEvents(maybeJumpSound)
 
-                nextPirate.map(p => Ready(p, platform, w))
+                nextPirate.map(p => Ready(p, mapHeight, w))
           }
