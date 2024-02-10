@@ -85,24 +85,24 @@ object LevelView:
         }
         .getOrElse(SceneUpdateFragment.empty)
 
-    def drawWater(waterReflections: Sprite[Material.Bitmap]): Batch[SceneNode] =
+    def drawWater(waterReflections: Clip[Material.Bitmap]): Batch[SceneNode] =
       Batch(
-        waterReflections.play(),
-        waterReflections.moveBy(150, 30).play(),
-        waterReflections.moveBy(-100, 60).play()
+        waterReflections,
+        waterReflections.moveBy(150, 30),
+        waterReflections.moveBy(-100, 60)
       )
 
     def drawForeground(assets: LevelDataStore): Batch[SceneNode] =
       Batch(
-        assets.flag.play(),
-        assets.helm.play(),
+        assets.flag,
+        assets.helm,
         Assets.Trees.tallTrunkGraphic.moveTo(420, 236),
         Assets.Trees.leftLeaningTrunkGraphic.moveTo(100, 286),
         Assets.Trees.rightLeaningTrunkGraphic.moveTo(25, 166),
-        assets.backTallPalm.moveTo(420, 226).changeCycle(CycleLabel("P Back")).play(),
-        assets.palm.moveTo(397, 204).play(),
-        assets.palm.moveTo(77, 251).play(),
-        assets.palm.moveTo(37, 120).play(),
+        assets.backTallPalm.moveTo(420, 226),
+        assets.palm.moveTo(397, 204),
+        assets.palm.moveTo(77, 251),
+        assets.palm.moveTo(37, 120),
         Assets.Static.chestGraphic.moveTo(380, 288),
         assets.terrain
       )
