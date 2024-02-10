@@ -43,9 +43,9 @@ lazy val pirate =
     .settings(
       indigoOptions := pirateOptions,
       libraryDependencies ++= Seq(
-        "io.indigoengine" %%% "indigo-json-circe" % "0.15.2",
-        "io.indigoengine" %%% "indigo"            % "0.15.2",
-        "io.indigoengine" %%% "indigo-extras"     % "0.15.2"
+        "io.indigoengine" %%% "indigo-json-circe" % "0.16.0",
+        "io.indigoengine" %%% "indigo"            % "0.16.0",
+        "io.indigoengine" %%% "indigo-extras"     % "0.16.0"
       ),
       Compile / sourceGenerators += Def.task {
         val cachedFun = FileFunction.cached(

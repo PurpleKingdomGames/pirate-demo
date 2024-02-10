@@ -41,7 +41,7 @@ object LevelView:
   def showColliderDebug(world: World[String], toScreenSpace: Vertex => Vertex): SceneUpdateFragment =
     SceneUpdateFragment(
       world.present {
-        case Collider.Circle(_, bounds, _, _, _, _, _, _, _) =>
+        case Collider.Circle(_, bounds, _, _, _, _, _, _, _, _) =>
           // Won't get here, no circles.
           Shape.Circle(
             toScreenSpace(bounds.position).toPoint,
@@ -50,7 +50,7 @@ object LevelView:
             Stroke(1, RGBA.Green)
           )
 
-        case Collider.Box(_, bounds, _, _, _, _, _, _, _) =>
+        case Collider.Box(_, bounds, _, _, _, _, _, _, _, _) =>
           Shape.Box(
             BoundingBox(
               toScreenSpace(bounds.position),

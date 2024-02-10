@@ -69,7 +69,7 @@ final case class LevelScene(screenWidth: Int) extends Scene[StartupData, Model, 
               pirate,
               platform,
               World
-                .empty[String]
+                .empty[String](SimulationSettings(BoundingBox(0, 0, 1280, 720)))
                 .withResistance(Resistance(0.01))
                 .withForces(Vector2(0, 30))
                 .withColliders(platform.navMesh)
