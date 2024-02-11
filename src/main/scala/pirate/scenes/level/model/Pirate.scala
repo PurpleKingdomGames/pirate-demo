@@ -1,6 +1,7 @@
 package pirate.scenes.level.model
 
 import indigo.*
+import pirate.core.SpaceConvertors
 
 final case class Pirate(
     state: PirateState,
@@ -14,15 +15,9 @@ object Pirate:
   // by 2 units (tiles).
   val respawnPoint = Vertex(9.5, -2)
 
-  // The model space is 1 unit per tile, a tile is 32 x 32.
-  // The captain does not take up a whole block. His bounding
-  // box is the width of his body (not extremities so that he
-  // slides of the edges of platforms), by his standing height.
-  // 32 = 1 so 15/32 x 28/32 is a bounding box of
-  // (0.46875, 0.875)
-  val initialBounds: BoundingBox =
+  def initialBounds(spaceConvertors: SpaceConvertors): BoundingBox =
     val startPosition = Vertex(9.5, 6)
-    val size          = Vertex(15.0 / 32.0, 28.0 / 32.0)
+    val size          = spaceConvertors.ScreenToWorld.convert(Point(15, 28))
     BoundingBox(startPosition, size)
 
   val initial: Pirate =

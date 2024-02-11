@@ -13,6 +13,7 @@ import pirate.scenes.level.viewmodel.LevelViewModel
 import pirate.scenes.level.viewmodel.PirateViewState
 import pirate.generated.Assets.*
 import pirate.core.LayerKeys
+import pirate.core.SpaceConvertors
 
 object LevelView:
 
@@ -23,40 +24,49 @@ object LevelView:
       captainClips: PirateClips,
       levelDataStore: Option[LevelDataStore]
   ): SceneUpdateFragment =
-    Level.draw(levelDataStore) |+| {
-      model.world.findByTag("pirate").headOption match
-        case Some(collider: Collider.Box[_]) =>
-          PirateCaptain.draw(
-            gameTime,
-            model.pirate,
-            collider,
-            viewModel.pirateViewState,
-            captainClips,
-            viewModel.worldToScreenSpace
-          )
 
-        case _ =>
-          // Shouldn't happen.
-          SceneUpdateFragment.empty
-    } // |+| showColliderDebug(model.world, viewModel.worldToScreenSpace)
+    val asBox: Collider[String] => Option[Collider.Box[String]] =
+      case collider: Collider.Box[_] => Option(collider)
+      case _                         => None
 
-  def showColliderDebug(world: World[String], toScreenSpace: Vertex => Vertex): SceneUpdateFragment =
+    val maybeScene =
+      for {
+        pirateCollider <- model.world.findByTag("pirate").headOption.flatMap(asBox)
+      } yield Level.draw(
+        levelDataStore,
+      ) |+|
+        PirateCaptain.draw(
+          gameTime,
+          model.pirate,
+          pirateCollider,
+          viewModel.pirateViewState,
+          captainClips,
+          viewModel.spaceConvertors
+        ) // |+|
+        //showColliderDebug(model.world, viewModel.spaceConvertors)
+
+    maybeScene.getOrElse(SceneUpdateFragment.empty)
+
+  def showColliderDebug(
+      world: World[String],
+      spaceConvertors: SpaceConvertors
+  ): SceneUpdateFragment =
     SceneUpdateFragment(
       world.present {
         case Collider.Circle(_, bounds, _, _, _, _, _, _, _, _) =>
           Shape.Circle(
-            toScreenSpace(bounds.position).toPoint,
-            bounds.radius.toInt,
+            spaceConvertors.WorldToScreen.convert(bounds.position),
+            spaceConvertors.WorldToScreen.convert(bounds.radius),
             Fill.None,
             Stroke(1, RGBA.Green)
           )
 
         case Collider.Box(_, bounds, _, _, _, _, _, _, _, _) =>
           Shape.Box(
-            BoundingBox(
-              toScreenSpace(bounds.position),
-              toScreenSpace(bounds.size)
-            ).toRectangle,
+            Rectangle(
+              spaceConvertors.WorldToScreen.convert(bounds.position),
+              spaceConvertors.WorldToScreen.convert(bounds.size).toSize
+            ),
             Fill.None,
             Stroke(1, RGBA.Green)
           )
@@ -65,7 +75,9 @@ object LevelView:
 
   object Level:
 
-    def draw(levelDataStore: Option[LevelDataStore]): SceneUpdateFragment =
+    def draw(
+        levelDataStore: Option[LevelDataStore],
+    ): SceneUpdateFragment =
       levelDataStore
         .map { levelAssets =>
           SceneUpdateFragment.empty
@@ -77,7 +89,10 @@ object LevelView:
               )
             )
             .addLayer(
-              Layer(LayerKeys.game, drawForeground(levelAssets))
+              Layer(
+                LayerKeys.game,
+                drawForeground(levelAssets)
+              )
             )
             .withAudio(
               assets.sounds.bgmusicSceneAudio
@@ -103,7 +118,7 @@ object LevelView:
         assets.palm.moveTo(397, 204),
         assets.palm.moveTo(77, 251),
         assets.palm.moveTo(37, 120),
-        Assets.Static.chestGraphic.moveTo(380, 288),
+        Assets.Static.chestWithCoinsGraphic.moveTo(380, 288),
         assets.terrain
       )
 
@@ -115,7 +130,7 @@ object LevelView:
         collider: Collider.Box[String],
         pirateViewState: PirateViewState,
         captainClips: PirateClips,
-        toScreenSpace: Vertex => Vertex
+        spaceConvertors: SpaceConvertors
     ): SceneUpdateFragment =
       SceneUpdateFragment.empty
         .addLayer(
@@ -124,7 +139,7 @@ object LevelView:
             respawnEffect(
               gameTime,
               pirate.lastRespawn,
-              updatedCaptain(pirate, collider, pirateViewState, captainClips, toScreenSpace)
+              updatedCaptain(pirate, collider, pirateViewState, captainClips, spaceConvertors)
             )
           )
         )
@@ -160,12 +175,12 @@ object LevelView:
         collider: Collider.Box[String],
         pirateViewState: PirateViewState,
         captainClips: PirateClips,
-        toScreenSpace: Vertex => Vertex
+        spaceConvertors: SpaceConvertors
     ): Clip[Material.ImageEffects] =
       val onScreenBounds =
-        BoundingBox(
-          toScreenSpace(collider.position),
-          toScreenSpace(collider.bounds.size)
+        Rectangle(
+          spaceConvertors.WorldToScreen.convert(collider.position),
+          spaceConvertors.WorldToScreen.convert(collider.bounds.size).toSize
         )
 
       val position =

@@ -2,6 +2,7 @@ package pirate.scenes.level.viewmodel
 
 import indigo.*
 import pirate.scenes.level.model.Pirate
+import pirate.core.SpaceConvertors
 
 /*
 The view model cannot be initialised at game start up, because we want to load
@@ -11,12 +12,15 @@ which is stored in the Tiled data.
  */
 enum LevelViewModel:
   case NotReady
-  case Ready(worldToScreenSpace: Vertex => Vertex, pirateViewState: PirateViewState)
+  case Ready(
+      spaceConvertors: SpaceConvertors,
+      pirateViewState: PirateViewState
+  )
 
   def notReady: Boolean =
     this match
-      case NotReady                                   => true
-      case Ready(worldToScreenSpace, pirateViewState) => false
+      case NotReady    => true
+      case Ready(_, _) => false
 
 object LevelViewModel:
 
@@ -26,7 +30,7 @@ object LevelViewModel:
         case NotReady =>
           Outcome(lvm)
 
-        case r @ Ready(worldToScreenSpace, pirateViewState) =>
+        case r @ Ready(_, pirateViewState) =>
           pirateViewState
             .update(gameTime, pirate)
             .map(ps => r.copy(pirateViewState = ps))

@@ -7,6 +7,10 @@ object Assets:
 
   object Static:
     val chestGraphic: Graphic[Material.Bitmap] =
+      Graphic(Rectangle(0, 0, 30, 25), 4, assets.static.chestMaterial).withRef(15, 25)
+    val coinsGraphic: Graphic[Material.Bitmap] =
+      Graphic(Rectangle(0, 0, 64, 35), 4, assets.static.coinsMaterial).withRef(33, 34)
+    val chestWithCoinsGraphic: Graphic[Material.Bitmap] =
       Graphic(Rectangle(0, 0, 64, 35), 4, assets.static.ChestClose01Material).withRef(33, 34)
 
   object Clouds:
