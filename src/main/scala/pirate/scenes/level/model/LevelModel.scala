@@ -37,6 +37,16 @@ enum LevelModel:
             p.withVelocity(Vector2(inputForce.x, p.velocity.y + inputForce.y))
           }
           .update(gameTime.delta)
+          .map {
+            _.modifyByTag("chest") {
+              case c: Collider.Box[_] =>
+                if c.position.y > mapHeight.toDouble + 1 then c.withPosition(Vertex(5, -2))
+                else c
+
+              case c =>
+                c
+            }
+          }
           .flatMap { w =>
             w.findByTag("pirate").headOption match
               case None =>
@@ -92,6 +102,10 @@ object LevelModel:
         .addColliders(
           Collider
             .Box("pirate", Pirate.initialBounds(spaceConvertors))
+        )
+        .addColliders(
+          Collider
+            .Box("chest", BoundingBox(Vertex(5, 6), spaceConvertors.ScreenToWorld.convert(Point(30, 25))))
             .withRestitution(Restitution(0))
         )
     )
