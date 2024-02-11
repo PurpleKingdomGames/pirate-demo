@@ -33,7 +33,7 @@ object LevelView:
       for {
         pirateCollider <- model.world.findByTag("pirate").headOption.flatMap(asBox)
       } yield Level.draw(
-        levelDataStore,
+        levelDataStore
       ) |+|
         PirateCaptain.draw(
           gameTime,
@@ -43,7 +43,7 @@ object LevelView:
           captainClips,
           viewModel.spaceConvertors
         ) // |+|
-        //showColliderDebug(model.world, viewModel.spaceConvertors)
+      // showColliderDebug(model.world, viewModel.spaceConvertors)
 
     maybeScene.getOrElse(SceneUpdateFragment.empty)
 
@@ -76,7 +76,7 @@ object LevelView:
   object Level:
 
     def draw(
-        levelDataStore: Option[LevelDataStore],
+        levelDataStore: Option[LevelDataStore]
     ): SceneUpdateFragment =
       levelDataStore
         .map { levelAssets =>
