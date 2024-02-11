@@ -31,9 +31,12 @@ object LevelView:
 
     val maybeScene =
       for {
+        chestCollider  <- model.world.findByTag("chest").headOption.flatMap(asBox)
         pirateCollider <- model.world.findByTag("pirate").headOption.flatMap(asBox)
       } yield Level.draw(
-        levelDataStore
+        levelDataStore,
+        chestCollider,
+        viewModel.spaceConvertors
       ) |+|
         PirateCaptain.draw(
           gameTime,
@@ -42,8 +45,8 @@ object LevelView:
           viewModel.pirateViewState,
           captainClips,
           viewModel.spaceConvertors
-        ) // |+|
-      // showColliderDebug(model.world, viewModel.spaceConvertors)
+        ) |+|
+        showColliderDebug(model.world, viewModel.spaceConvertors)
 
     maybeScene.getOrElse(SceneUpdateFragment.empty)
 
@@ -76,7 +79,9 @@ object LevelView:
   object Level:
 
     def draw(
-        levelDataStore: Option[LevelDataStore]
+        levelDataStore: Option[LevelDataStore],
+        chestCollider: Collider.Box[String],
+        spaceConvertors: SpaceConvertors
     ): SceneUpdateFragment =
       levelDataStore
         .map { levelAssets =>
@@ -92,6 +97,7 @@ object LevelView:
               Layer(
                 LayerKeys.game,
                 drawForeground(levelAssets)
+                  ++ drawChest(chestCollider, spaceConvertors)
               )
             )
             .withAudio(
@@ -118,8 +124,22 @@ object LevelView:
         assets.palm.moveTo(397, 204),
         assets.palm.moveTo(77, 251),
         assets.palm.moveTo(37, 120),
-        Assets.Static.chestWithCoinsGraphic.moveTo(380, 288),
+        Assets.Static.coinsGraphic.moveTo(380, 288),
         assets.terrain
+      )
+
+    def drawChest(chestCollider: Collider.Box[String], spaceConvertors: SpaceConvertors): Batch[SceneNode] =
+      val onScreenBounds =
+        Rectangle(
+          spaceConvertors.WorldToScreen.convert(chestCollider.position),
+          spaceConvertors.WorldToScreen.convert(chestCollider.bounds.size).toSize
+        )
+
+      val position =
+        Vertex(onScreenBounds.center.x, onScreenBounds.bottom).toPoint
+
+      Batch(
+        Assets.Static.chestGraphic.moveTo(position)
       )
 
   object PirateCaptain:
