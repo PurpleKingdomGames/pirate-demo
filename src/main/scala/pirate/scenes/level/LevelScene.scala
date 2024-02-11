@@ -13,6 +13,7 @@ import pirate.scenes.level.viewmodel.LevelViewModel
 import pirate.scenes.level.viewmodel.PirateViewState
 import pirate.scenes.level.model.Pirate
 import pirate.scenes.level.model.PirateRespawn
+import pirate.core.SpaceConvertors
 
 final case class LevelScene(screenWidth: Int) extends Scene[StartupData, Model, ViewModel]:
   type SceneModel     = LevelModel
@@ -62,18 +63,7 @@ final case class LevelScene(screenWidth: Int) extends Scene[StartupData, Model, 
           val pirate   = Pirate.initial
           val platform = Platform.fromTerrainMap(levelDataStore.terrainMap)
 
-          Outcome(
-            LevelModel.Ready(
-              pirate,
-              platform.rowCount,
-              World
-                .empty[String](SimulationSettings(BoundingBox(0, 0, 1280, 720)))
-                .withResistance(Resistance(0.01))
-                .withForces(Vector2(0, 30))
-                .withColliders(platform.navMesh)
-                .addColliders(Collider.Box("pirate", Pirate.initialBounds).withRestitution(Restitution(0)))
-            )
-          )
+          Outcome(LevelModel.makeReady(pirate, platform, SpaceConvertors(levelDataStore.tileSize)))
 
         case _ =>
           Outcome(model)
@@ -92,10 +82,7 @@ final case class LevelScene(screenWidth: Int) extends Scene[StartupData, Model, 
     case FrameTick if viewModel.notReady =>
       (viewModel, context.startUpData.levelDataStore) match
         case (LevelViewModel.NotReady, Some(levelDataStore)) =>
-          val changeSpace: Vertex => Vertex =
-            _ * levelDataStore.tileSize.toVertex
-
-          Outcome(LevelViewModel.Ready(changeSpace, PirateViewState.initial))
+          Outcome(LevelViewModel.Ready(SpaceConvertors(levelDataStore.tileSize), PirateViewState.initial))
 
         case _ =>
           Outcome(viewModel)

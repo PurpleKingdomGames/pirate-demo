@@ -3,6 +3,8 @@ package pirate.scenes.level.model
 import indigo.*
 import indigo.physics.World
 import pirate.generated.Assets.*
+import indigo.physics.*
+import pirate.core.SpaceConvertors
 
 /*
 The model cannot be initialised at game start up, because we want to load
@@ -16,7 +18,7 @@ enum LevelModel:
 
   def notReady: Boolean =
     this match
-      case NotReady                       => true
+      case NotReady       => true
       case Ready(_, _, _) => false
 
   def update(gameTime: GameTime, inputState: InputState): Outcome[LevelModel] =
@@ -65,3 +67,17 @@ enum LevelModel:
 
                 nextPirate.map(p => Ready(p, mapHeight, w))
           }
+
+object LevelModel:
+
+  def makeReady(pirate: Pirate, platform: Platform, spaceConvertors: SpaceConvertors): LevelModel.Ready =
+    LevelModel.Ready(
+      pirate,
+      platform.rowCount,
+      World
+        .empty[String](SimulationSettings(BoundingBox(0, 0, 1280, 720)))
+        .withResistance(Resistance(0.01))
+        .withForces(Vector2(0, 30))
+        .withColliders(platform.navMesh)
+        .addColliders(Collider.Box("pirate", Pirate.initialBounds(spaceConvertors)).withRestitution(Restitution(0)))
+    )
