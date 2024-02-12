@@ -7,7 +7,6 @@ import indigo.physics.*
 import pirate.scenes.level.subsystems.CloudsAutomata
 import pirate.scenes.level.subsystems.CloudsSubSystem
 import pirate.core.{StartupData, Model, ViewModel}
-import pirate.scenes.level.model.Platform
 import pirate.scenes.level.model.LevelModel
 import pirate.scenes.level.viewmodel.LevelViewModel
 import pirate.scenes.level.viewmodel.PirateViewState
@@ -61,7 +60,7 @@ final case class LevelScene(screenWidth: Int) extends Scene[StartupData, Model, 
       (model, context.startUpData.levelDataStore) match
         case (LevelModel.NotReady, Some(levelDataStore)) =>
           val pirate   = Pirate.initial
-          val platform = Platform.fromTerrainMap(levelDataStore.terrainMap)
+          val platform = levelDataStore.terrainMap.layers.head.rowCount
 
           Outcome(LevelModel.makeReady(pirate, platform, SpaceConvertors(levelDataStore.tileSize)))
 

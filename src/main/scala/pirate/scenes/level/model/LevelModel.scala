@@ -70,14 +70,28 @@ enum LevelModel:
 
 object LevelModel:
 
-  def makeReady(pirate: Pirate, platform: Platform, spaceConvertors: SpaceConvertors): LevelModel.Ready =
+  def makeReady(pirate: Pirate, mapHeight: Int, spaceConvertors: SpaceConvertors): LevelModel.Ready =
+    val platforms =
+      Batch(
+        BoundingBox(Vertex(0, 3), Vertex(2, 1)),
+        BoundingBox(Vertex(17, 5), Vertex(3, 1)),
+        BoundingBox(Vertex(4, 9), Vertex(11, 1)),
+        BoundingBox(Vertex(16, 10), Vertex(2, 1))
+      ).map { b =>
+        Collider.Box("platform", b).makeStatic.withFriction(Friction(0.5))
+      }
+
     LevelModel.Ready(
       pirate,
-      platform.rowCount,
+      mapHeight,
       World
         .empty[String](SimulationSettings(BoundingBox(0, 0, 1280, 720)))
         .withResistance(Resistance(0.01))
         .withForces(Vector2(0, 30))
-        .withColliders(platform.navMesh)
-        .addColliders(Collider.Box("pirate", Pirate.initialBounds(spaceConvertors)).withRestitution(Restitution(0)))
+        .withColliders(platforms)
+        .addColliders(
+          Collider
+            .Box("pirate", Pirate.initialBounds(spaceConvertors))
+            .withRestitution(Restitution(0))
+        )
     )
