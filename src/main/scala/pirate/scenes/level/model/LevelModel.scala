@@ -102,6 +102,7 @@ object LevelModel:
         .addColliders(
           Collider
             .Box("pirate", Pirate.initialBounds(spaceConvertors))
+            .withRestitution(Restitution(0))
         )
         .addColliders(
           Collider
