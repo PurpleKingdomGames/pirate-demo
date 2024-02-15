@@ -130,13 +130,10 @@ object LevelView:
 
     def drawChest(chestCollider: Collider.Box[String], spaceConvertors: SpaceConvertors): Batch[SceneNode] =
       val onScreenBounds =
-        Rectangle(
-          spaceConvertors.WorldToScreen.convert(chestCollider.position),
-          spaceConvertors.WorldToScreen.convert(chestCollider.bounds.size).toSize
-        )
+        spaceConvertors.WorldToScreen.convert(chestCollider.boundingBox)
 
       val position =
-        Vertex(onScreenBounds.center.x, onScreenBounds.bottom).toPoint
+        Point(onScreenBounds.center.x, onScreenBounds.bottom)
 
       Batch(
         Assets.Static.chestGraphic.moveTo(position)
