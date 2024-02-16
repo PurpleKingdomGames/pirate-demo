@@ -45,8 +45,8 @@ object LevelView:
           viewModel.pirateViewState,
           captainClips,
           viewModel.spaceConvertors
-        ) |+|
-        showColliderDebug(model.world, viewModel.spaceConvertors)
+        ) // |+|
+        // showColliderDebug(model.world, viewModel.spaceConvertors)
 
     maybeScene.getOrElse(SceneUpdateFragment.empty)
 
@@ -61,7 +61,7 @@ object LevelView:
             spaceConvertors.WorldToScreen.convert(bounds.position),
             spaceConvertors.WorldToScreen.convert(bounds.radius),
             Fill.None,
-            Stroke(2, RGBA.Green)
+            Stroke(1, RGBA.Green)
           )
 
         case Collider.Box(_, bounds, _, _, _, _, _, _, _, _) =>
@@ -71,7 +71,7 @@ object LevelView:
               spaceConvertors.WorldToScreen.convert(bounds.size).toSize
             ),
             Fill.None,
-            Stroke(2, RGBA.Green)
+            Stroke(1, RGBA.Green)
           )
       }
     )
