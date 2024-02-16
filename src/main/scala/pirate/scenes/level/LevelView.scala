@@ -46,7 +46,7 @@ object LevelView:
           captainClips,
           viewModel.spaceConvertors
         ) // |+|
-        // showColliderDebug(model.world, viewModel.spaceConvertors)
+      // showColliderDebug(model.world, viewModel.spaceConvertors)
 
     maybeScene.getOrElse(SceneUpdateFragment.empty)
 
