@@ -4,6 +4,7 @@ import indigo.*
 import indigoextras.subsystems.*
 import pirate.core.Assets
 import pirate.core.LayerKeys
+import pirate.core.Model
 
 /*
 The `CloudsSubSystem` does two things:
@@ -11,12 +12,13 @@ The `CloudsSubSystem` does two things:
 2. Emits periodic events telling the cloud automata system to spawn
    a new small cloud.
  */
-final case class CloudsSubSystem(screenWidth: Int) extends SubSystem:
+final case class CloudsSubSystem(screenWidth: Int) extends SubSystem[Model]:
 
   val verticalCenter: Int = 181
 
   type EventType      = FrameTick
   type SubSystemModel = CloudsState
+  type ReferenceData  = Unit
 
   def id: SubSystemId = SubSystemId("clouds")
 
@@ -25,10 +27,13 @@ final case class CloudsSubSystem(screenWidth: Int) extends SubSystem:
     case _         => None
   }
 
+  def reference(model: Model): ReferenceData =
+    ()
+
   def initialModel: Outcome[CloudsState] =
     Outcome(CloudsState.initial)
 
-  def update(context: SubSystemFrameContext, model: SubSystemModel): EventType => Outcome[SubSystemModel] =
+  def update(context: SubSystemFrameContext[Unit], model: SubSystemModel): EventType => Outcome[SubSystemModel] =
     case FrameTick if context.gameTime.running - model.lastSpawn > Seconds(3.0) =>
       Outcome(
         CloudsState(
@@ -59,28 +64,28 @@ final case class CloudsSubSystem(screenWidth: Int) extends SubSystem:
         )
       )
 
-  def present(context: SubSystemFrameContext, model: SubSystemModel): Outcome[SceneUpdateFragment] =
+  def present(context: SubSystemFrameContext[Unit], model: SubSystemModel): Outcome[SceneUpdateFragment] =
     Outcome(
       SceneUpdateFragment.empty
         .addLayer(
-          Layer(
-            LayerKeys.bigClouds,
-            Assets.Clouds.bigCloudsGraphic
-              .moveTo(
-                model.bigCloudPosition.toInt - Assets.Clouds.bigCloudsWidth,
-                verticalCenter
-              ),
-            Assets.Clouds.bigCloudsGraphic
-              .moveTo(
-                model.bigCloudPosition.toInt,
-                verticalCenter
-              ),
-            Assets.Clouds.bigCloudsGraphic
-              .moveTo(
-                model.bigCloudPosition.toInt + Assets.Clouds.bigCloudsWidth,
-                verticalCenter
-              )
-          )
+          LayerKeys.bigClouds ->
+            Layer(
+              Assets.Clouds.bigCloudsGraphic
+                .moveTo(
+                  model.bigCloudPosition.toInt - Assets.Clouds.bigCloudsWidth,
+                  verticalCenter
+                ),
+              Assets.Clouds.bigCloudsGraphic
+                .moveTo(
+                  model.bigCloudPosition.toInt,
+                  verticalCenter
+                ),
+              Assets.Clouds.bigCloudsGraphic
+                .moveTo(
+                  model.bigCloudPosition.toInt + Assets.Clouds.bigCloudsWidth,
+                  verticalCenter
+                )
+            )
         )
     )
 

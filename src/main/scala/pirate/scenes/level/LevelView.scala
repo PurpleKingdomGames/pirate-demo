@@ -87,18 +87,18 @@ object LevelView:
         .map { levelAssets =>
           SceneUpdateFragment.empty
             .addLayer(
-              Layer(
-                LayerKeys.background,
-                Batch(Graphic(Rectangle(0, 0, 640, 360), 50, assets.static.bgMaterial)) ++
-                  drawWater(levelAssets.waterReflections)
-              )
+              LayerKeys.background ->
+                Layer(
+                  Batch(Graphic(Rectangle(0, 0, 640, 360), 50, assets.static.bgMaterial)) ++
+                    drawWater(levelAssets.waterReflections)
+                )
             )
             .addLayer(
-              Layer(
-                LayerKeys.game,
-                drawForeground(levelAssets)
-                  ++ drawChest(chestCollider, spaceConvertors)
-              )
+              LayerKeys.game ->
+                Layer(
+                  drawForeground(levelAssets)
+                    ++ drawChest(chestCollider, spaceConvertors)
+                )
             )
             .withAudio(
               assets.sounds.bgmusicSceneAudio
@@ -151,14 +151,14 @@ object LevelView:
     ): SceneUpdateFragment =
       SceneUpdateFragment.empty
         .addLayer(
-          Layer(
-            LayerKeys.game,
-            respawnEffect(
-              gameTime,
-              pirate.lastRespawn,
-              updatedCaptain(pirate, collider, pirateViewState, captainClips, spaceConvertors)
+          LayerKeys.game ->
+            Layer(
+              respawnEffect(
+                gameTime,
+                pirate.lastRespawn,
+                updatedCaptain(pirate, collider, pirateViewState, captainClips, spaceConvertors)
+              )
             )
-          )
         )
 
     val respawnFlashSignal: Seconds => Signal[(Boolean, Boolean)] =

@@ -41,8 +41,8 @@ final case class LoadingScene(assetPath: String, screenDimensions: Rectangle)
   val eventFilters: EventFilters =
     EventFilters.Restricted
 
-  val subSystems: Set[SubSystem] =
-    Set(AssetBundleLoader)
+  val subSystems: Set[SubSystem[Model]] =
+    Set(AssetBundleLoader[Model])
 
   def updateModel(
       context: SceneContext[StartupData],

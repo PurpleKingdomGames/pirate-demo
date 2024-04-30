@@ -10,7 +10,7 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 
 ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0"
 
-val scala3Version = "3.3.1"
+val scala3Version = "3.4.1"
 
 lazy val pirateOptions: IndigoOptions =
   IndigoOptions.defaults
@@ -43,9 +43,9 @@ lazy val pirate =
     .settings(
       indigoOptions := pirateOptions,
       libraryDependencies ++= Seq(
-        "io.indigoengine" %%% "indigo-json-circe" % "0.16.0",
-        "io.indigoengine" %%% "indigo"            % "0.16.0",
-        "io.indigoengine" %%% "indigo-extras"     % "0.16.0"
+        "io.indigoengine" %%% "indigo-json-circe" % "0.16.1-SNAPSHOT",
+        "io.indigoengine" %%% "indigo"            % "0.16.1-SNAPSHOT",
+        "io.indigoengine" %%% "indigo-extras"     % "0.16.1-SNAPSHOT"
       ),
       Compile / sourceGenerators += Def.task {
         val cachedFun = FileFunction.cached(

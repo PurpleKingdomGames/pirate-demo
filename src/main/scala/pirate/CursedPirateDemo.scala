@@ -28,7 +28,7 @@ object CursedPirateDemo extends IndigoGame[BootInformation, StartupData, Model, 
   val eventFilters: EventFilters =
     EventFilters.BlockAll
 
-  def boot(flags: Map[String, String]): Outcome[BootResult[BootInformation]] =
+  def boot(flags: Map[String, String]): Outcome[BootResult[BootInformation, Model]] =
     Outcome {
       val assetPath: String =
         flags.getOrElse("baseUrl", "")
@@ -44,7 +44,7 @@ object CursedPirateDemo extends IndigoGame[BootInformation, StartupData, Model, 
       ).withAssets(Assets.initialAssets(assetPath))
         .withFonts(Assets.Fonts.fontInfo)
         .withSubSystems(
-          // indigoextras.subsystems.FPSCounter(Point(10, 10), LayerKeys.fps)
+          indigoextras.subsystems.FPSCounter(Point(10, 10), LayerKeys.fps)
         )
     }
 
@@ -74,9 +74,9 @@ object CursedPirateDemo extends IndigoGame[BootInformation, StartupData, Model, 
   def present(context: FrameContext[StartupData], model: Model, viewModel: ViewModel): Outcome[SceneUpdateFragment] =
     Outcome(
       SceneUpdateFragment.empty
-        .addLayer(Layer(LayerKeys.background))
-        .addLayer(Layer(LayerKeys.bigClouds))
-        .addLayer(Layer(LayerKeys.smallClouds))
-        .addLayer(Layer(LayerKeys.game))
-        .addLayer(Layer(LayerKeys.fps))
+        .addLayer(LayerEntry(LayerKeys.background, Layer.Content.empty))
+        .addLayer(LayerEntry(LayerKeys.bigClouds, Layer.Content.empty))
+        .addLayer(LayerEntry(LayerKeys.smallClouds, Layer.Content.empty))
+        .addLayer(LayerEntry(LayerKeys.game, Layer.Content.empty))
+        .addLayer(LayerEntry(LayerKeys.fps, Layer.Content.empty))
     )
