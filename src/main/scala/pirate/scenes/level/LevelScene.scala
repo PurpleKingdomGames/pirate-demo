@@ -34,7 +34,7 @@ final case class LevelScene(screenWidth: Int) extends Scene[StartupData, Model, 
   val eventFilters: EventFilters =
     EventFilters.Restricted
 
-  val subSystems: Set[SubSystem] =
+  val subSystems: Set[SubSystem[Model]] =
     Set(
       CloudsAutomata.automata,
       CloudsSubSystem(screenWidth)

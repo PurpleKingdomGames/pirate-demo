@@ -4,6 +4,7 @@ import indigo.*
 import indigoextras.subsystems.*
 import pirate.core.Assets
 import pirate.core.LayerKeys
+import pirate.core.Model
 
 /*
 An instance of a standard Automata SubSystem, you can think of this
@@ -52,7 +53,7 @@ object CloudsAutomata:
 
   val poolKey: AutomataPoolKey = AutomataPoolKey("cloud")
 
-  val automata: Automata =
+  val automata: Automata[Model] =
     Automata(
       poolKey,
       automaton,
