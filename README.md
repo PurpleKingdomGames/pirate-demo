@@ -1,3 +1,5 @@
+> This repo has been archived, but the code lives on at: https://indigoengine.io/
+
 # The Cursed Pirate!
 
 Play now! [https://purplekingdomgames.github.io/pirate-demo/](https://purplekingdomgames.github.io/pirate-demo/)
